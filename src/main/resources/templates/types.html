@@ -38,7 +38,7 @@
         <!--分类下面的博客列表-->
         <div class="ui teal top attached segment ">
             <!--单个博客-->
-            <div th:each="document:${documentList}" class="ui padded vertical segment m-padded-tb-large">
+            <div th:each="document,content:${documentList}" class="ui padded vertical segment m-padded-tb-large">
                 <div class="ui mobile reversed stackable grid">
                     <div class="ui eleven wide column">
                         <a th:href="@{/document/{documentId}(documentId=${document.documentId})}"> <h3 class="ui header" th:text="${document.title}"></h3></a>
@@ -56,7 +56,7 @@
                                         <i class="calendar icon"></i><span th:text="${#dates.format(document.lastEditTime,'yyyy-MM-dd')}"></span>
                                     </div>
                                     <div class="item">
-                                        <i class="eye icon"></i>[[${document.viewCount}]]
+                                        <i class="eye icon"></i>[[${viewCountList.get(content.index)}]]
                                     </div>
                                 </div>
                             </div>

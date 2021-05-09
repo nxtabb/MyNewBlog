@@ -7,17 +7,22 @@ import com.hrbeu.service.LabDocumentService;
 import com.hrbeu.service.admin.DocumentService;
 import com.hrbeu.service.admin.TypeService;
 import com.hrbeu.utils.PageUtil;
+import com.hrbeu.utils.RedisUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 
+import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
 @Controller
 public class TypeShowController {
+    @Autowired
+    private RedisUtil redisUtil;
     @Autowired
     private TypeService typeService;
     @Autowired
@@ -38,6 +43,16 @@ public class TypeShowController {
         else {
             documentList = documentService.queryDocumentByTypeId(pageIndex,pageSize,typeId);
         }
+        List<Integer> viewCountList = new LinkedList<>();
+        for (Document document : documentList) {
+            Integer viewCount = 0;
+            Object viewCountObject = redisUtil.hget("viewCount",document.getDocumentId()+"");
+            if(viewCountObject!=null){
+                viewCount = (Integer)viewCountObject;
+            }
+            viewCountList.add(viewCount);
+        }
+        model.addAttribute("viewCountList",viewCountList);
         int count =documentService.queryDocumentCountByTypeId(typeId);
         Map<String,Integer> pageInfo =  PageUtil.page(pageIndex,pageSize,count);
         List<Type_Count> typeCountList = labDocumentService.getTypeAndCountByTypeId();
