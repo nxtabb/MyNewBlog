@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <!--设置移动端-->
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <title>搜索结果</title>
+    <!--引入css-->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/semantic-ui@2.4.2/dist/semantic.min.css">
+    <link rel="stylesheet" th:href="@{/css/me.css}">
+</head>
+
+<body>
+<!--导航栏容器-->
+<div th:include="header"></div>
+<!--中间内容容器-->
+<div class="m-padded-tb-large m-container-small">
+    <div class="ui container">
+        <!--分类页的头部容器-->
+        <div class="ui top attached segment">
+            <div class="ui middle aligned two column grid">
+                <div class="column">
+                    <h3 class="ui teal header">查询结果</h3>
+                </div>
+                <div class="right aligned column">
+                    共<h2 class="ui orange header m-inline-block m-text-thin" th:text="${maxCount}"></h2>篇
+                </div>
+            </div>
+        </div>
+
+        <!--标签下面的博客列表-->
+        <div class="ui teal top attached segment ">
+            <!--单个博客-->
+            <div th:each="document,content:${documentList}" class="ui padded vertical segment m-padded-tb-large">
+                <div class="ui mobile reversed stackable grid">
+                    <div class="ui eleven wide column">
+                        <a th:href="@{/document/{documentId}(documentId=${document.documentId})}"> <h3 class="ui header" th:text="${document.title}"></h3></a>
+                        <p class="m-text">
+                            <span th:if="${document.description.length()>150}" th:text="${document.description.substring(0,150)}"></span>
+                            <span th:if="${document.description.length()<=150}" th:text="${document.description}"></span>
+                        <div class="ui stackable grid">
+                            <div class="eleven wide column">
+                                <div class="ui horizontal mini link list">
+                                    <div class="item">
+                                        <img th:src="${document.user.image}" class="ui avatar image">
+                                        <div class="content">
+                                            <a href="#" class="header" th:text="${document.user.nickname}"></a>
+                                        </div>
+                                    </div>
+                                    <div class="item">
+                                        <i class="calendar icon"></i>
+                                        <span th:text="${#dates.format(document.lastEditTime,'yyyy-MM-dd')}"></span>
+                                    </div>
+                                    <div class="item">
+                                        <i class="eye icon"></i><span th:text="${viewCountList.get(content.index)}"></span>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="right aligned five wide column">
+                                <a href="#"class="ui label teal basic m-padded-mini" target="_blank">
+                                    [[${document.type.typeName}]]
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="ui five wide column">
+                        <a src="#" target="_blank"><img th:src="${document.firstPicture}" class="ui rounded image"></a>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <!--上一页 下一页-->
+        <div class="ui bottom attached segment">
+            <div class="ui middle aligned two column grid">
+                <div class="column">
+                    <a href="#" class="ui teal basic button" id="prePageBtn">上一页</a>
+                </div>
+                <div class="right aligned column">
+                    <a href="#" class="ui teal basic button" id="nextPageBtn">下一页</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!--底部容器-->
+<jsp:include page="footer.jsp"/>
+<!--引入jquery-->
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.2/dist/jquery.min.js"></script>
+<!--引入semantic的js库-->
+<script src="https://cdn.jsdelivr.net/npm/semantic-ui@2.4.2/dist/semantic.min.js"></script>
+<script>
+    $(".menu.toggle").click(function (){
+        $(".m-item").toggleClass('m-mobile-hide');
+    });
+    $("#nextPageBtn").click(function () {
+        window.location.href = '/search/'+[[${nextPage}]]
+    });
+    $("#prePageBtn").click(function () {
+        window.location.href = '/search/'+[[${prePage}]]
+    });
+    $("#index-btn").click(function () {
+        window.location.href='/plt';
+
+    });
+    $('.ui.dropdown').dropdown({
+        on:'hover'
+    });
+</script>
+</body>
+</html>

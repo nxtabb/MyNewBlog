@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <!--设置移动端-->
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <title>文档管理</title>
+    <!--引入css-->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/semantic-ui@2.4.2/dist/semantic.min.css">
+    <link rel="stylesheet" th:href="@{/css/me.css}">
+</head>
+
+<body>
+<!--导航栏容器-->
+<nav class="ui inverted attached segment m-padded-tb-mini m-shadow-small" >
+    <!--为了让logo更加靠右，因此将其放入container中-->
+    <div class="ui container">
+        <!--创建一个menu-->
+        <div class="ui inverted secondary stackable menu">
+            <!--创建一个logo-->
+            <a href="#"><h2 class="ui teal header item" id="index-btn">宁熙桐的博客——后台管理</h2></a>
+            <!--菜单栏-->
+            <a th:href="@{/admin/documentsIndex/1}" class="active m-item item m-mobile-hide"><i class="home icon"></i>全部文档</a>
+            <a th:href="@{/admin/types/1}" class="m-item item m-mobile-hide"><i class="idea icon"></i>管理分类</a>
+            <a th:href="@{/admin/tags/1}" class="m-item item m-mobile-hide"><i class="tags icon"></i>管理标签</a>
+            <!--头像-->
+            <div class="right m-item m-mobile-hide menu">
+                <div class="ui dropdown item">
+                    <div class="text">
+                        <img th:src="${session.user.image}" th:text="${session.user.nickname}">
+                    </div>
+                    <i class="dropdown icon"></i>
+                    <div class="menu">
+                        <a th:href="@{/admin/logout}" class="item">注销</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <a href="#" class="ui menu toggle black icon button m-right-top m-mobile-show">
+        <i class="sidebar icon"></i>
+    </a>
+
+</nav>
+
+<div class="ui attached pointing menu">
+    <div class="ui container">
+        <div class="right menu">
+            <a th:href="@{/admin/documents/adddocument}" class="item">新增文档</a>
+            <a th:href="@{admin/documents/search/1}" class="teal item active">文档列表</a>
+        </div>
+
+    </div>
+
+</div>
+<!--中间内容容器-->
+<div class="m-padded-tb-large m-container-small">
+    <div class="ui container">
+        <!--搜索的form-->
+        <form th:action="@{/admin/documents/search/1}" method="post" class="ui  secondary form segment" id="search_form">
+            <div class="inline fields">
+                <!--标题输入框-->
+                搜索文档标题：<div class="field">
+                    <input type="text" name="title" placeholder="标题" id="title_input">
+                </div>
+                <!--类型下拉框-->
+                搜索文档分类：<div class="field">
+
+                    <select name="type">
+                            <option th:each="type:${typeList}" th:value="${type.typeId}" th:text="${type.typeName}"></option>
+                    </select>
+
+                </div>
+                <!--按钮-->
+                <div class="field">
+                    <button class="ui mini teal basic button" id="search-btn">
+                        <i class="search icon" ></i>搜索
+                    </button>
+                </div>
+
+            </div>
+        </form>
+        <h3>搜索结果：共[[${maxCount}]]个结果,当前是第[[${currentPage}]]页，共[[${maxPage}]]页</h3>
+        <!--显示信息的表格-->
+        <table class="ui compact teal table">
+            <thead>
+            <tr>
+                <th>序号</th>
+                <th>标题</th>
+                <th>类型</th>
+                <th>推荐</th>
+                <th>归属作者</th>
+                <th>更新时间</th>
+                <th>操作</th>
+            </tr>
+            </thead>
+            <tbody>
+            <div th:each="document,content:${documentList}">
+                <tr>
+                    <td th:text="${content.index+1}"></td>
+                    <td th:text="${document.title}"></td>
+                    <td th:text="${document.type.typeName}"></td>
+                    <td th:if="${document.getRecommend()==1}" th:text="是"></td>
+                    <td th:if="${document.getRecommend()!=1}" th:text="否"></td>
+                    <td th:text="${document.user.nickname}"></td>
+                    <td th:text="${#dates.format(document.lastEditTime,'yyyy-MM-dd')}"></td>
+                    <td>
+                        <a th:href="@{/admin/documents/updatedocument/{documentId}(documentId=${document.documentId})}" class="ui mini teal button">编辑</a>
+                        <a th:href="@{/admin/documents/deleteById/{documentId}(documentId=${document.documentId})}" class="ui mini red button">删除</a>
+                    </td>
+                </tr>
+            </div>
+            </tbody>
+            <tfoot>
+            <tr>
+                <th colspan="7">
+                    <div class="ui mini floated pagination menu">
+                        <a class="icon item" id="prePage">上一页</a>
+                        <a class="icon item" id="nextPage">下一页</a>
+                    </div>
+                    <a th:href="@{/admin/documents/adddocument}" class="ui mini right floated basic button">新增</a>
+                </th>
+            </tr>
+            </tfoot>
+        </table>
+    </div>
+</div>
+<!--底部容器-->
+<div th:include="footer"></div>
+<!--引入jquery-->
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.2/dist/jquery.min.js"></script>
+<!--引入semantic的js库-->
+<script src="https://cdn.jsdelivr.net/npm/semantic-ui@2.4.2/dist/semantic.min.js"></script>
+<script>
+
+    $(".menu.toggle").click(function (){
+        $(".m-item").toggleClass('m-mobile-hide');
+    });
+    $('.ui.dropdown').dropdown({
+        on:'hover'
+    });
+    $("#nextPage").click(function () {
+        window.location.href="/admin/documents/search/"+[[${nextPage}]];
+    })
+    $("#prePage").click(function () {
+        window.location.href="/admin/documents/search/"+[[${prePage}]];
+    })
+
+    $("#search-btn").click(function (){
+        $("#search_form").submit();
+
+    });
+    $("#index-btn").click(function () {
+        window.location.href='/admin/index';
+    })
+</script>
+</body>
+</html>

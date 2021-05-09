@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <!--设置移动端-->
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <title>标签</title>
+    <!--引入css-->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/semantic-ui@2.4.2/dist/semantic.min.css">
+    <link rel="stylesheet" th:href="@{/css/me.css}">
+</head>
+
+<body>
+<!--导航栏容器-->
+<div th:include="header"></div>
+<!--中间内容容器-->
+<div class="m-padded-tb-large m-container-small">
+    <div class="ui container">
+        <!--分类页的头部容器-->
+        <div class="ui top attached segment">
+            <div class="ui middle aligned two column grid">
+                <div class="column">
+                    <h3 class="ui teal header">标签</h3>
+                </div>
+                <div class="right aligned column">
+                    共<h2 class="ui orange header m-inline-block m-text-thin" th:text="${count}"></h2>篇
+                </div>
+            </div>
+        </div>
+        <!--标签区域-->
+        <div class="ui attached segment m-padded-tb-large">
+            <a th:each="tagCount:${tagCountList}" th:href="@{/tags/{tagId}/1(tagId=${tagCount.tagId})}"  class="ui teal basic left pointing large label m-margin-tb-tiny" th:text="${tagCount.tagName}">
+                <div class="detail" th:text="${tagCount.count}"></div>
+            </a>
+        </div>
+        <!--标签下面的博客列表-->
+        <div class="ui teal top attached segment ">
+            <!--单个博客-->
+            <div th:each="document:${documentList}" class="ui padded vertical segment m-padded-tb-large">
+                <div class="ui mobile reversed stackable grid">
+                    <div class="ui eleven wide column">
+                        <a th:href="@{/document/{documentId}(documentId=${document.documentId})}"><h3 class="ui header" th:text="${document.title}"></h3></a>
+                        <p class="m-text" th:text="${document.description}"></p>
+                        <div class="ui stackable grid">
+                            <div class="row">
+                                <div class="eleven wide column">
+                                    <div class="ui horizontal mini link list">
+                                        <div class="item">
+                                            <img th:src="${document.user.image}" class="ui avatar image">
+                                            <div class="content">
+                                                <a href="#" class="header" th:text="${document.user.nickname}"></a>
+                                            </div>
+                                        </div>
+                                        <div class="item">
+                                            <i class="calendar icon"></i><span th:text="${#dates.format(document.lastEditTime,'yyyy-MM-dd')}"></span>
+                                        </div>
+                                        <div class="item">
+                                            <i class="eye icon"></i>[[${document.viewCount}]]
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="right aligned five wide column">
+                                    <a th:href="@{/types/{typeId}/1(typeId=${document.type.typeId})}"class="ui label teal basic m-padded-mini" target="_blank">
+                                        [[${document.type.typeName}]]
+                                    </a>
+                                </div>
+                            </div>
+                            <div class="row">
+                                <div class="column">
+                                    <a th:each="tag:${document.tagList}" th:href="@{/tags/{tagId}/1(tagId=${tag.tagId})}" class="ui basic teal left pointing label m-padded-mini">[[${tag.tagName}]]</a>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                    <div class="ui five wide column">
+                        <a src="#" target="_blank"><img th:src="${document.firstPicture}" class="ui rounded image"></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!--上一页 下一页-->
+        <div class="ui bottom attached segment">
+            <div class="ui middle aligned two column grid">
+                <div class="column">
+                    <a href="#" class="ui teal basic button" id="prePage">上一页</a>
+                </div>
+                <div class="right aligned column">
+                    <a href="#" class="ui teal basic button" id="nextPage">下一页</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<br><br><br><br><br><br>
+<br><br><br><br><br><br>
+
+<!--底部容器-->
+<div th:include="footer"></div>
+<!--引入jquery-->
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.2/dist/jquery.min.js"></script>
+<!--引入semantic的js库-->
+<script src="https://cdn.jsdelivr.net/npm/semantic-ui@2.4.2/dist/semantic.min.js"></script>
+<script>
+    $(".menu.toggle").click(function (){
+        $(".m-item").toggleClass('m-mobile-hide');
+    });
+
+    $("#nextPage").click(function () {
+        window.location.href='/tags/'+[[${currenttagId}]]+'/'+[[${nextPage}]]
+    });
+    $("#prePage").click(function () {
+        window.location.href='/tags/'+[[${currenttagId}]]+'/'+[[${prePage}]]
+    });
+    $("#index-btn").click(function () {
+        window.location.href='/plt';
+
+    });
+    $('.ui.dropdown').dropdown({
+        on:'hover'
+    });
+
+</script>
+</body>
+</html>

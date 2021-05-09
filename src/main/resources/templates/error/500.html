@@ -1,0 +1,37 @@
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <!--设置移动端-->
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <title>出错了！！</title>
+    <!--引入css-->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/semantic-ui@2.4.2/dist/semantic.min.css">
+    <link rel="stylesheet" th:href="@{/css/me.css}">
+</head>
+<body>
+
+
+<!--导航栏容器-->
+<div th:include="header"></div>
+<div class="m-container-small m-padded-tb-massive">
+    <div class="ui error message">
+        <div class="ui container">
+            <h2>500 ERROR</h2>
+            <p>服务器出现了错误，请刷新重试或联系系统管理员～</p>
+        </div>
+    </div>
+</div>
+<br>
+<br>
+<br>
+<br>
+<br>
+<div th:include="footer"></div>
+</body>
+<script>
+    $("#index-btn").click(function () {
+        window.location.href='/plt';
+
+    });
+</script>
+</html>

@@ -1,0 +1,52 @@
+<html xmlns:th="http://www.thymeleaf.org">
+<nav class="ui inverted attached segment m-padded-tb-mini m-shadow-small" th:fragment="header">
+    <!--为了让logo更加靠右，因此将其放入container中-->
+    <div class="ui container">
+        <!--创建一个menu-->
+        <div class="ui inverted secondary stackable menu">
+            <!--创建一个logo-->
+            <a href="#"><h2 class="ui teal header item" id="index-btn">nxt's博客</h2></a>
+            <!--菜单栏-->
+            <a th:href="@{/plt}" class="m-item item m-mobile-hide" ><i class="home icon"></i>首页</a>
+            <a th:if="${session.user!=null}" th:href="@{/documentsIndex/1}" class="m-item item m-mobile-hide"><i class="file icon"></i>我的文档</a>
+            <a th:href="@{/types/-1/1}" class="m-item item m-mobile-hide"><i class="idea icon"></i> 分类</a>
+            <a th:href="@{/tags/-1/1}" class="m-item item m-mobile-hide"><i class="tags icon"></i>标签</a>
+            <a th:href="@{/archives}" class="m-item item m-mobile-hide"><i class="time icon"></i>归档</a>
+            <a th:href="@{/about}" class="m-item item m-mobile-hide"><i class="info icon"></i>关于我们</a>
+            <!--右侧搜索框-->
+            <div class="right item m-mobile-hide">
+                <form th:action="@{/search/1}" method="post" target="_blank" name="search">
+                    <div class="ui icon input">
+                        <input type="text" placeholder="Search...." name="query">
+                        <i onclick="document.forms['search'].submit()" class="search link icon"></i>
+                    </div>
+                </form>
+            </div>
+            <a th:if="${session.user==null}" th:href="@{/login}" class="m-item item m-mobile-hide"><i class="user icon"></i>登录</a>
+            <!--头像-->
+            <div th:if="${session.user!=null}"class="right m-item m-mobile-hide menu">
+                <div class="ui dropdown item">
+                    <div class="text">
+                        <img th:src="${session.user.image}" th:text="${session.user.nickname}" >
+                    </div>
+                    <i class="dropdown icon"></i>
+                    <div class="menu">
+                        <a th:href="@{/logout}" class="item">注销</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <a href="#" class="ui menu toggle black icon button m-right-top m-mobile-show">
+        <i class="sidebar icon"></i>
+    </a>
+</nav>
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.2/dist/jquery.min.js"></script>
+<script>
+
+    $("#index-btn").click(function () {
+        window.location.href='/plt';
+
+    });
+</script>
+</html>

@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hrbeu.dao.LabDocumentDao">
+    <resultMap id="document_published" type="com.hrbeu.pojo.Document">
+        <id column="document_id" property="documentId"/>
+        <result column="title" property="title"/>
+        <result column="description" property="description"/>
+        <result column="last_edit_time" property="lastEditTime"/>
+        <result column="first_picture" property="firstPicture"/>
+        <association property="type" javaType="com.hrbeu.pojo.Type">
+            <id column="type_id" property="typeId"/>
+            <result column="type_name" property="typeName"/>
+        </association>
+        <association property="user" javaType="com.hrbeu.pojo.User">
+            <id column="user_id" property="userId"/>
+            <result column="image" property="image"/>
+            <result column="nickname" property="nickname"/>
+        </association>
+    </resultMap>
+    <select id="getPublishedDocument" resultMap="document_published">
+        select tb_document.document_id,
+        tb_document.title,
+        tb_document.description,
+        tb_document.last_edit_time,
+        tb_document.first_picture,
+        tb_type.type_id,
+        tb_type.type_name,
+        tb_user.user_id,
+        tb_user.nickname,
+        tb_user.image
+        from tb_document,
+        tb_user,
+        tb_type
+        where
+        tb_document.user_id=tb_user.user_id
+        and
+        tb_type.type_id = tb_document.type_id
+        and
+        tb_document.published=1
+        order by tb_document.last_edit_time
+        limit #{documentIndex},#{pageSize}
+    </select>
+
+    <select id="getPublishedDocumentCount" resultType="int">
+        select count(*) from tb_document
+        where published =1
+    </select>
+
+    <select id="getTypeAndCount" parameterType="int" resultType="com.hrbeu.pojo.vo.Type_Count">
+        SELECT tb_type.type_id,count(*) count,tb_type.type_name
+        from
+        tb_document doc
+        ,tb_type where
+        doc.type_id = tb_type.type_id and doc.published=1
+        GROUP BY tb_type.type_id ORDER BY count desc limit 0,#{value }
+    </select>
+
+    <select id="getTagAndCount" parameterType="int" resultType="com.hrbeu.pojo.vo.Tag_Count">
+        SELECT count(*) count,tb_tag.tag_id,tb_tag.tag_name
+        from
+        tb_document doc
+        ,tb_document_tag doctag
+        ,tb_tag where
+        doc.document_id = doctag.document_id
+        and
+        doctag.tag_id = tb_tag.tag_id
+        and
+        doc.published =1
+        GROUP BY doctag.tag_id ORDER BY count desc limit 0,#{value }
+    </select>
+
+    <select id="getRecommendDocumentList" parameterType="int" resultType="com.hrbeu.pojo.Document">
+        select document_id,title from tb_document where recommend=1 and published=1  order by last_edit_time desc limit 0,#{value }
+    </select>
+
+
+    <select id="queryBySearch" resultMap="document_published">
+        select
+        tb_document.document_id,
+        tb_document.title,
+        tb_document.description,
+        tb_document.last_edit_time,
+        tb_document.first_picture,
+        tb_type.type_id,
+        tb_type.type_name,
+        tb_user.user_id,
+        tb_user.nickname,
+        tb_user.image
+        from tb_document,
+        tb_user,
+        tb_type
+        where
+        tb_document.user_id=tb_user.user_id
+        and
+        tb_type.type_id = tb_document.type_id
+        and
+        (tb_document.title like '%${query}%' or tb_document.content like '%${query}%')
+        and
+        tb_document.published=1
+        order by tb_document.last_edit_time
+        limit #{documentIndex},#{pageSize}
+    </select>
+    <select id="queryCountBySearch" resultType="int" parameterType="java.lang.String">
+        select count(*) from tb_document where published=1 and (title like '%${query}%' or content like '%${query}%')
+    </select>
+
+    <select id="getTypeAndCountByTypeId" resultType="com.hrbeu.pojo.vo.Type_Count">
+        SELECT tb_type.type_id,count(*) count,tb_type.type_name
+        from
+        tb_document doc
+        ,tb_type where
+        doc.type_id = tb_type.type_id and doc.published=1
+        GROUP BY tb_type.type_id ORDER BY count desc
+    </select>
+    <select id="getTagAndCountByTagId" resultType="com.hrbeu.pojo.vo.Tag_Count">
+        SELECT tb_tag.tag_id,count(*) count,tb_tag.tag_name
+        from
+        tb_document doc
+        ,tb_tag,tb_document_tag where
+        doc.document_id = tb_document_tag.document_id and tb_document_tag.tag_id = tb_tag.tag_id and doc.published=1
+        GROUP BY tb_tag.tag_id ORDER BY count desc
+    </select>
+
+
+</mapper>

@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hrbeu.dao.admin.TagDao">
+    <insert id="saveTag" parameterType="com.hrbeu.pojo.Tag">
+        insert into tb_tag (tag_name) values (#{tagName})
+    </insert>
+    <select id="queryTag" parameterType="long" resultType="com.hrbeu.pojo.Tag">
+        select * from tb_tag where tag_id =#{value }
+    </select>
+    <select id="queryTagList" resultType="com.hrbeu.pojo.Tag">
+        select * from tb_tag
+        limit #{tagIndex},#{pageSize}
+    </select>
+    <update id="updateTag">
+        update tb_tag set tag_name = #{tag.tagName} where tag_id=#{tagId}
+    </update>
+    <delete id="deleteTag" parameterType="long">
+        delete from tb_tag where tag_id=#{value }
+    </delete>
+    <select id="tagCount" resultType="int">
+        select count(*) from tb_tag
+    </select>
+    <select id="checkTag" parameterType="java.lang.String" resultType="int">
+        select count(*) from tb_tag where tag_name = #{tagName}
+    </select>
+    <select id="getAllTags" resultType="com.hrbeu.pojo.Tag">
+        select * from tb_tag
+    </select>
+
+
+</mapper>

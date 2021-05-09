@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <!--设置移动端-->
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <title>新增分类</title>
+    <!--引入css-->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/semantic-ui@2.4.2/dist/semantic.min.css">
+    <link rel="stylesheet" th:href="@{/lib/editormd/css/editormd.min.css}">
+    <link rel="stylesheet" th:href="@{/css/me.css}">
+
+</head>
+
+<body>
+<!--导航栏容器-->
+<nav class="ui inverted attached segment m-padded-tb-mini m-shadow-small" >
+    <!--为了让logo更加靠右，因此将其放入container中-->
+    <div class="ui container">
+        <!--创建一个menu-->
+        <div class="ui inverted secondary stackable menu">
+            <!--创建一个logo-->
+            <a href="#"><h2 class="ui teal header item" id="index-btn">宁熙桐的博客——后台管理</h2></a>
+            <!--菜单栏-->
+            <a th:href="@{/admin/documentsIndex/1}" class="m-item item m-mobile-hide" ><i class="home icon"></i>全部文档</a>
+            <a th:href="@{/admin/types/1}" class="active m-item item m-mobile-hide"><i class="idea icon"></i>管理分类</a>
+            <a th:href="@{/admin/tags/1}" class="m-item item m-mobile-hide"><i class="tags icon"></i>管理标签</a>
+            <!--头像-->
+            <div class="right m-item m-mobile-hide menu">
+                <div class="ui dropdown item">
+                    <div class="text">
+                        <img th:src="${session.user.image}" th:text="${session.user.nickname}">
+                    </div>
+                    <i class="dropdown icon"></i>
+                    <div class="menu">
+                        <a th:href="@{/admin/logout}" class="item">注销</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <a href="#" class="ui menu toggle black icon button m-right-top m-mobile-show">
+        <i class="sidebar icon"></i>
+    </a>
+
+</nav>
+<!--标题-->
+<div class="ui attached pointing menu">
+    <div class="ui container">
+        <div class="right menu">
+            <a th:href="@{/admin/types/input}" class="item active">新增种类</a>
+            <a th:href="@{/admin/types/1}" class="teal item ">列表</a>
+        </div>
+    </div>
+
+</div>
+<!--文档内容-->
+<div class="m-padded-tb-large m-container-small">
+    <div class="ui container">
+        <form class="ui form" th:action="@{/admin/types/addtype}" method="post">
+            <div class="field">
+                <div class="ui left labeled input">
+                    <label class="ui teal basic label">名称</label>
+                    <input type="text" name="name" id="type_input"  placeholder="分类名称">
+
+                </div>
+                <span id="err_type"></span>
+            </div>
+            <!--checkbox的容器-->
+
+            <div class="ui error message"></div>
+            <!--三个按钮-->
+            <div class="ui right aligned container">
+                <button class="ui button" type="button" onclick="window.history.go(-1)">返回</button>
+                <button class="ui teal button">提交</button>
+            </div>
+        </form>
+    </div>
+</div>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<!--底部容器-->
+<div th:include="footer"></div>
+<!--引入jquery-->
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.2/dist/jquery.min.js"></script>
+<!--引入semantic的js库-->
+<script src="https://cdn.jsdelivr.net/npm/semantic-ui@2.4.2/dist/semantic.min.js"></script>
+<script th:src="@{/lib/editormd/editormd.min.js}"></script>
+<script>
+    var type_flag = false;
+    $(".menu.toggle").click(function (){
+        $(".m-item").toggleClass('m-mobile-hide');
+    });
+    $('.ui.dropdown').dropdown({
+        on:'hover'
+    });
+    $('.ui.form').form({
+        fields:{
+            title:{
+                identifier: 'name',
+                rules:[{
+                    type:'empty',
+                    prompt:'请输入分类内容'
+                }]
+            }
+        }
+    })
+    $("#type_input").blur(function () {
+        var type = $("#type_input").val();
+        $.ajax({
+            url:'/admin/types/checktype/'+type,
+            type:'GET',
+            datatype:'JSON',
+            success:function(data) {
+                if(data.success){
+                    type_flag = true;
+                }else {
+                    alert("此分类已存在");
+                    type_flag = false;
+                }
+            }
+        })
+    });
+    $("#index-btn").click(function () {
+        window.location.href='/admin/index';
+    })
+</script>
+</body>
+</html>

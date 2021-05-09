@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.hrbeu.dao.admin.DocumentTagDao">
+    <insert id="saveDocumentsAndTags">
+        insert ignore into tb_document_tag(document_id,tag_id) values
+        <foreach collection="tagList" item="tag" separator=",">
+        <if test="#{tag}!=null and #{tag.tagId}!=null">
+            (#{document.documentId},#{tag.tagId})
+        </if>
+        </foreach>
+    </insert>
+
+    <delete id="deleteById" parameterType="long">
+        delete from tb_document_tag where document_id = #{value }
+    </delete>
+    <select id="queryTagListByDocumentId" parameterType="long" resultType="com.hrbeu.pojo.DocumentTag">
+        select * from tb_document_tag where document_id =#{value }
+    </select>
+
+</mapper>

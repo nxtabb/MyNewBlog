@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <!--设置移动端-->
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <title >登录</title>
+    <!--引入css-->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/semantic-ui@2.4.2/dist/semantic.min.css">
+    <link rel="stylesheet" th:href="@{/css/typo.css}" >
+    <link rel="stylesheet" th:href="@{/css/animate.css}">
+    <link rel="stylesheet" th:href="@{/lib/prism/prism.css}">
+    <link rel="stylesheet" th:href="@{/lib/tocbot/tocbot.css}" >
+    <link rel="stylesheet" th:href="@{/css/me.css}" >
+</head>
+<body>
+<br>
+<div class="m-container-small m-padded-tb-massive" style="max-width: 30em!important;">
+    <div class="ui container">
+        <div class="ui middle aligned center aligned grid">
+            <div class="column">
+                <h2 class="ui teal image header">
+                    <!--<img src="../../static/images/logo.png" class="image">-->
+                    <div class="content">
+                        欢迎来到宁熙桐的博客
+                    </div>
+                </h2>
+                <form class="ui large form" method="post" id="login-form" th:action="@{/indexLogin}">
+                    <div class="ui stacked segment">
+                        <h2>用户登录</h2>
+                        <div class="required field">
+                            <div class="ui left icon input">
+                                <i class="user icon"></i>
+                                <input type="text" name="username" id="username-input" placeholder="用户名">
+                            </div>
+                        </div>
+                        <div class="field">
+                            <div class="ui left icon input">
+                                <i class="lock icon"></i>
+                                <input type="password" name="password" id="password-input" placeholder="密码">
+                            </div>
+                        </div>
+                        <div class="ui fluid large teal submit button" id="login">登录</div>
+                        <br>
+                        <div class="ui fluid large black submit button" id="register">注册</div>
+                        <br>
+                        <div class="ui fluid large button" id="guest">游客进入</div>
+                    </div>
+                    <div class="ui error message"></div>
+                </form>
+                <h3>2020-2021 © 哈尔滨工程工程大学 - All Rights Reserved.</h3>
+                <h1 th:text="${errMsg}"></h1>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.2/dist/jquery.min.js"></script>
+<!--引入semantic的js库-->
+<script src="https://cdn.jsdelivr.net/npm/semantic-ui@2.4.2/dist/semantic.min.js"></script>
+<script>
+    $('.ui.form').form({
+        fields:{
+            username:{
+                identifier: 'username',
+                rules:[{
+                    type:'empty',
+                    prompt:'请输入用户名'
+                }]
+            },
+            password:{
+                identifier: 'password',
+                rules:[{
+                    type:'empty',
+                    prompt:'请输入密码'
+                }]
+            }
+        }
+    })
+    $("#guest").click(function () {
+        window.location.href='/plt?guest=1'
+
+    })
+    $("#register").click(function (){
+        window.location.href='/plt-register'
+    })
+</script>
+</body>
+</html>

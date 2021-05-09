@@ -1,0 +1,292 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hrbeu.dao.admin.DocumentDao">
+    <resultMap id="document_index" type="com.hrbeu.pojo.Document">
+        <id column="document_id" property="documentId"/>
+        <result column="title" property="title"/>
+        <result column="last_edit_time" property="lastEditTime"/>
+        <result column="recommend" property="recommend"/>
+        <association property="type" javaType="com.hrbeu.pojo.Type">
+            <id column="type_id" property="typeId"/>
+            <result column="type_name" property="typeName"/>
+        </association>
+        <association property="user" javaType="com.hrbeu.pojo.User">
+            <id column="user_id" property="userId"/>
+            <result column="nickname" property="nickname"/>
+        </association>
+    </resultMap>
+    <select id="queryDocument" parameterType="long" resultMap="document_index">
+        select doc.*,type.type_id,type.type_name
+        from
+        tb_document doc,tb_type type
+        where
+        doc.type_id = type.type_id
+        and
+        doc.document_id = #{value }
+    </select>
+
+
+    <select id="getDocumentList" resultMap="document_index">
+        select doc.*, type.type_name
+        from
+        tb_document doc,tb_type type
+        <where>
+        doc.type_id = type.type_id
+        <if test="document!=null and document.title!=null">
+            and doc.title like '%${document.title}%'
+        </if>
+        <if test="document!=null and document.type!=null and document.type.typeId!=null">
+            and doc.type_id = #{document.type.typeId}
+        </if>
+        <if test="document!=null and document.user!=null and document.user.userId!=null">
+            and doc.user_id = #{document.user.userId}
+        </if>
+        </where>
+        limit #{documentIndex},#{pageSize}
+    </select>
+
+    <select id="getList" resultMap="document_index">
+        select doc.*, type.type_name
+        from
+        tb_document doc,tb_type type
+        <where>
+            doc.type_id = type.type_id
+            <if test="document != null and document.title != null">
+                and doc.title = #{document.title}
+            </if>
+            <if test="document != null and document.type != null and document.type.typeId != null">
+                and doc.type_id = #{document.type.typeId}
+            </if>
+            <if test="document != null and document.recommend != null">
+                and doc.recommend = #{document.recommend}
+            </if>
+        </where>
+    </select>
+
+    <select id="documentCount" parameterType="com.hrbeu.pojo.Document" resultType="int">
+        select count(*)
+        from
+        tb_document doc
+        <where>
+        <if test="document!=null and document.documentId!=null">
+            and doc.document_id = #{document.documentId}
+        </if>
+        <if test="document!=null and document.title!=null">
+            and doc.title like '%${document.title}%'
+        </if>
+        <if test="document!=null and document.published!=null">
+            and doc.published = #{document.published}
+        </if>
+        <if test="document!=null and document.type!=null and document.type.typeId!=null">
+            and doc.type_id = #{document.type.typeId}
+        </if>
+        <if test="document!=null and document.user!=null and document.user.userId!=null">
+            and doc.user_id = #{document.user.userId}
+        </if>
+        </where>
+    </select>
+
+    <delete id="deleteDocument" parameterType="long">
+        delete from tb_document where document_id = #{value }
+    </delete>
+
+    <insert id="saveDocument" useGeneratedKeys="true" parameterType="com.hrbeu.pojo.Document" keyProperty="document.documentId">
+        insert into tb_document
+        (title,content,first_picture,flag,appreciate,comment_able,share_info,recommend,create_time,last_edit_time,published,user_id,type_id,description)
+        values
+        (#{document.title},
+        #{document.content},
+        #{document.firstPicture},
+        #{document.flag},
+        #{document.appreciate},
+        #{document.commentAble},
+        #{document.shareInfo},
+        #{document.recommend},
+        #{document.createTime},
+        #{document.lastEditTime},
+        #{document.published},
+        #{document.user.userId},
+        #{document.type.typeId},
+        #{document.description})
+        <selectKey resultType="long" keyProperty="document.documentId" order="AFTER">
+            SELECT LAST_INSERT_ID()
+        </selectKey>
+    </insert>
+    <resultMap id="detailDocument" type="com.hrbeu.pojo.Document">
+        <id property="documentId" column="document_id"/>
+        <result property="title" column="title"/>
+        <result property="content" column="content"/>
+        <result property="firstPicture" column="first_picture"/>
+        <result property="flag" column="flag"/>
+        <result property="appreciate" column="appreciate"/>
+        <result property="commentAble" column="comment_able"/>
+        <result property="shareInfo" column="share_info"/>
+        <result property="recommend" column="recommend"/>
+        <result property="lastEditTime" column="last_edit_time"/>
+        <result property="published" column="published"/>
+        <result property="description" column="description"/>
+        <association property="type" javaType="com.hrbeu.pojo.Type">
+            <id property="typeId" column="type_id"/>
+            <result property="typeName" column="type_name"/>
+        </association>
+        <collection property="tagList" ofType="com.hrbeu.pojo.Tag" column="document_id">
+            <id property="tagId" column="tag_id" javaType="long"/>
+            <id property="tagName" column="tag_name" javaType="String"/>
+        </collection>
+    </resultMap>
+    <select id="queryDetailedDocument" parameterType="long" resultMap="detailDocument">
+        select
+        doc.title,
+        doc.content,
+        doc.first_picture,
+        doc.flag,
+        doc.appreciate,
+        doc.comment_able,
+        doc.share_info,
+        doc.recommend,
+        doc.last_edit_time,
+        doc.published,
+        doc.description,
+        doc_type.type_id,
+        doc_type.type_name,
+        doc_tag.document_id,
+        doc_tag.tag_id
+        from tb_document doc,tb_document_tag doc_tag,tb_type doc_type
+        where
+        doc.document_id = doc_tag.document_id
+        and
+        doc.type_id = doc_type.type_id
+        and
+        doc.document_id = #{value}
+    </select>
+
+    <update id="updateDocument">
+        update tb_document set
+        <if test="#{document.title}!=null">
+            title =#{document.title},
+        </if>
+        <if test="#{document.content}!=null">
+            content =#{document.content},
+        </if>
+        <if test="#{document.firstPicture}!=null">
+            first_picture=#{document.firstPicture},
+        </if>
+        <if test="#{document.flag}!=null">
+            flag = #{document.flag},
+        </if>
+        <if test="#{document.appreciate}!=null">
+            appreciate=#{document.appreciate},
+        </if>
+        <if test="#{document.commentAble}!=null">
+            comment_able=#{document.commentAble},
+        </if>
+        <if test="#{document.shareInfo}!=null">
+            share_info = #{document.shareInfo},
+        </if>
+        <if test="#{document.recommend}!=null">
+            recommend = #{document.recommend},
+        </if>
+        <if test="#{document.lastEditTime}!=null">
+            last_edit_time = #{document.lastEditTime},
+        </if>
+        <if test="#{document.type}!=null and #{document.type.typeId}!=null">
+            type_id = #{document.type.typeId},
+        </if>
+        <if test="#{document.user}!=null and #{document.user.userId}!=null">
+            user_id = #{document.user.userId},
+        </if>
+        <if test="#{document.published}!=null">
+            published = #{document.published},
+        </if>
+        <if test="#{document.description}!=null">
+            description= #{document.description}
+        </if>
+        where document_id = #{documentId}
+    </update>
+
+
+    <resultMap id="mostDetailDocument" type="com.hrbeu.pojo.Document">
+        <id property="documentId" column="document_id"/>
+        <result property="title" column="title"/>
+        <result property="content" column="content"/>
+        <result property="firstPicture" column="first_picture"/>
+        <result property="flag" column="flag"/>
+        <result property="appreciate" column="appreciate"/>
+        <result property="commentAble" column="comment_able"/>
+        <result property="shareInfo" column="share_info"/>
+        <result property="recommend" column="recommend"/>
+        <result property="lastEditTime" column="last_edit_time"/>
+        <result property="published" column="published"/>
+        <result property="createTime" column="create_time"/>
+        <result property="description" column="description"/>
+        <association property="type" javaType="com.hrbeu.pojo.Type">
+            <id property="typeId" column="type_id"/>
+            <result property="typeName" column="type_name"/>
+        </association>
+        <association property="user" javaType="com.hrbeu.pojo.User">
+            <id column="user_id" property="userId"/>
+            <result column="nickname" property="nickname"/>
+            <result column="email" property="email"/>
+            <result column="image" property="image"/>
+        </association>
+        <collection property="tagList" ofType="com.hrbeu.pojo.Tag" column="document_id">
+            <id property="tagId" column="tag_id" javaType="long"/>
+            <id property="tagName" column="tag_name" javaType="String"/>
+        </collection>
+    </resultMap>
+    <select id="getMostDetailDocument" parameterType="long" resultMap="mostDetailDocument">
+        select * from tb_document doc,tb_user user,tb_type type,tb_document_tag tag,tb_tag tbtag where doc.type_id = type.type_id
+        and doc.document_id = tag.document_id and doc.user_id = user.user_id and doc.document_id = #{value } and tag.tag_id = tbtag.tag_id
+    </select>
+<!--    <update id="createViewCount" parameterType="long">-->
+<!--        update tb_document-->
+<!--        set view_count = view_count+1-->
+<!--        where document_id =#{value }-->
+<!--    </update>-->
+
+
+    <select id="queryDocumentByTypeId" resultMap="mostDetailDocument">
+        select * from tb_document doc,tb_user user,tb_type type,tb_document_tag tag,tb_tag tbtag where doc.type_id = type.type_id
+        and doc.document_id = tag.document_id and doc.user_id = user.user_id and tag.tag_id = tbtag.tag_id and doc.published=1
+        and doc.type_id = #{typeId} LIMIT #{documentIndex},#{pageSize}
+    </select>
+    <select id="queryDocumentCountByTypeId" parameterType="long" resultType="int">
+        select count(*) from tb_document where type_id = #{value } and published=1
+    </select>
+
+    <select id="queryDocumentByTagId" resultMap="mostDetailDocument">
+        select * from tb_document doc,tb_user user,tb_type type,tb_document_tag tag,tb_tag tbtag where doc.type_id = type.type_id
+        and doc.document_id = tag.document_id and doc.user_id = user.user_id and tag.tag_id = tbtag.tag_id and doc.published=1
+        and tag.tag_id = #{tagId} LIMIT #{documentIndex},#{pageSize}
+    </select>
+    <select id="queryDocumentCountByTagId" parameterType="long" resultType="int">
+        select count(tbtag.document_id) from tb_document_tag tbtag inner join tb_document doc on tbtag.document_id = doc.document_id
+        where tbtag.tag_id = #{value } and doc.published=1
+    </select>
+
+    <select id="getTimeGroupByYearAndMonth" resultType="string">
+        select DATE_FORMAT(doc.last_edit_time,'%Y-%M') as year from tb_document doc where doc.published=1 GROUP BY year ORDER BY year desc;
+    </select>
+
+    <select id="findDocumentByTime" parameterType="string" resultMap="mostDetailDocument">
+        select * from
+        tb_document doc,
+        tb_user user,
+        tb_type type,
+        tb_document_tag tag,
+        tb_tag tbtag
+        where
+        doc.type_id = type.type_id and
+        doc.published = 1 and
+        doc.document_id = tag.document_id and
+        doc.user_id = user.user_id and
+        tag.tag_id = tbtag.tag_id and
+        DATE_FORMAT(doc.last_edit_time,'%Y-%M') = #{value }
+    </select>
+
+
+
+
+</mapper>

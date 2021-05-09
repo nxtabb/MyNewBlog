@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <!--设置移动端-->
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <title>归档</title>
+    <!--引入css-->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/semantic-ui@2.4.2/dist/semantic.min.css">
+    <link rel="stylesheet" th:href="@{/css/me.css}">
+</head>
+
+<body>
+<!--导航栏容器-->
+<div th:include="header"></div>
+<!--中间内容容器-->
+<div class="m-padded-tb-large m-container-small">
+    <div class="ui container">
+        <!--分类页的头部容器-->
+        <div class="ui top attached padded segment">
+            <div class="ui middle aligned two column grid">
+                <div class="column">
+                    <h3 class="ui teal header">归档</h3>
+                </div>
+                <div class="right aligned column">
+                    共<h2 class="ui orange header m-inline-block m-text-thin"> [[${count}]] </h2>篇文章
+                </div>
+            </div>
+        </div>
+        <!--2020年-->
+        <div th:each="documentList:${resultMap}">
+            <h1 class="ui center aligned header">[[${documentList.key}]]</h1>
+            <div class="ui fluid vertical menu" th:each="document:${documentList.value}">
+                    <a th:href="@{/document/{documentId}(documentId=${document.documentId})}"  class="item">
+                <span>
+                <i class="mini teal circle icon" ></i>文章标题：[[${document.title}]]
+                    <span>上传人：[[${document.user.nickname}]]</span>
+                    <div class="ui teal basic left pointing label m-padded-mini" th:text="${#dates.format(document.lastEditTime,'yyyy-MM-dd HH:mm:ss')}"></div>
+                </span>
+
+                        <div class="ui orange basic left pointing label m-padded-mini">
+                            <div th:if="${document.flag==1}">原创</div>
+                            <div th:if="${document.flag==2}">转载</div>
+                            <div th:if="${document.flag==3}">翻译</div>
+                        </div>
+                    </a>
+            </div>
+        </div>
+    </div>
+</div>
+<br><br><br><br><br><br><br><br><br><br><br><br><br>
+<!--底部容器-->
+<div th:include="footer"></div>
+<!--引入jquery-->
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.2/dist/jquery.min.js"></script>
+<!--引入semantic的js库-->
+<script src="https://cdn.jsdelivr.net/npm/semantic-ui@2.4.2/dist/semantic.min.js"></script>
+<script>
+    $(".menu.toggle").click(function (){
+        $(".m-item").toggleClass('m-mobile-hide');
+    });
+    $("#index-btn").click(function () {
+        window.location.href='/plt';
+    });
+    $('.ui.dropdown').dropdown({
+        on:'hover'
+    });
+</script>
+</body>
+</html>

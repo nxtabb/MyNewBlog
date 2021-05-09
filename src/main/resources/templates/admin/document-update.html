@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <!--设置移动端-->
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <title>发布文档</title>
+    <!--引入css-->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/semantic-ui@2.4.2/dist/semantic.min.css">
+    <link rel="stylesheet" th:href="@{/lib/editormd/css/editormd.min.css}">
+    <link rel="stylesheet" th:href="@{/css/me.css}">
+
+</head>
+
+<body>
+<!--导航栏容器-->
+<nav class="ui inverted attached segment m-padded-tb-mini m-shadow-small" >
+    <!--为了让logo更加靠右，因此将其放入container中-->
+    <div class="ui container">
+        <!--创建一个menu-->
+        <div class="ui inverted secondary stackable menu">
+            <!--创建一个logo-->
+            <a href="#"><h2 class="ui teal header item" id="index-btn">宁熙桐的博客——后台管理</h2></a>
+            <!--菜单栏-->
+            <a th:href="@{/admin/documentsIndex/1}" class="active m-item item m-mobile-hide"><i class="home icon"></i>全部文档</a>
+            <a th:href="@{/admin/types/1}" class="m-item item m-mobile-hide"><i class="idea icon"></i>管理分类</a>
+            <a th:href="@{/admin/tags/1}" class="m-item item m-mobile-hide"><i class="tags icon"></i>管理标签</a>
+            <!--头像-->
+            <div class="right m-item m-mobile-hide menu">
+                <div class="ui dropdown item">
+                    <div class="text">
+                        <img th:src="${session.user.image}" th:text="${session.user.nickname}">
+                    </div>
+                    <i class="dropdown icon"></i>
+                    <div class="menu">
+                        <a th:href="@{/admin/logout}" class="item">注销</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <a href="#" class="ui menu toggle black icon button m-right-top m-mobile-show">
+        <i class="sidebar icon"></i>
+    </a>
+
+</nav>
+<!--标题-->
+<div class="ui attached pointing menu">
+    <div class="ui container">
+        <div class="right menu">
+            <a th:href="@{/admin/documents/adddocument}" class="teal item active">发布</a>
+            <a th:href="@{/admin/documentsIndex/1}" class="item">列表</a>
+        </div>
+    </div>
+
+</div>
+
+
+
+
+<!--文档内容-->
+<div class="m-padded-tb-large m-container">
+    <div class="ui container">
+        <div class="ui success message">
+            <i class="close icon"></i>
+            <div class="header">提示：</div>
+            <p>亲爱的用户，您可以先删除附属文件在上传新的附属文件，或直接上传新的附属文件，系统不会自动删除同名文件哦～～</p>
+        </div>
+        <!--显示信息的表格-->
+        <table class="ui compact teal table">
+            <thead>
+            <tr>
+                <th>附属文件名称</th>
+                <th>附属文件大小(MB)</th>
+                <th>文档上传时间</th>
+                <th>最后更新时间</th>
+                <th>操作</th>
+            </tr>
+            </thead>
+            <tbody>
+            <div th:if="${fileLenList!=null}" th:each="file:${fileLenList}">
+                <tr>
+                    <td th:text="${file.file.fileOriginName}"></td>
+                    <td th:text="${#numbers.formatPercent(file.length,0,2)}"></td>
+                    <td th:text="${#dates.format(file.file.createTime,'yyyy-MM-dd HH:mm:ss')}"></td>
+                    <td th:text="${#dates.format(file.file.lastEditTime,'yyyy-MM-dd HH:mm:ss')}"></td>
+                    <td>
+                        <a th:href="@{/admin/files/downloadFile/{fileId}(fileId=${file.file.fileId})}" class="ui mini teal button">下载</a>
+                        <a th:href="@{/admin/files/onlydeleteFile/{documentId}/{fileId}(documentId=${document.documentId},fileId=${file.file.fileId})}" class="ui mini red button">删除</a>
+                    </td>
+                </tr>
+            </div>
+            </tbody>
+        </table>
+
+        <form class="ui form" th:action="@{/admin/documents/updatedocument/{documentId}(documentId=${document.documentId})}" method="post" id="document_form" enctype="multipart/form-data">
+            <!--输入标题-->
+            <div class="required field">
+                <div class="ui left labeled input">
+                    <div class="ui selection compact teal basic dropdown label">
+                        <input type="hidden" th:if="${document.flag==1}" value="1" name="flag">
+                        <input type="hidden" th:if="${document.flag==2}" value="2" name="flag">
+                        <input type="hidden" th:if="${document.flag==3}" value="3" name="flag">
+                        <i class="dropdown icon"></i>
+                        <div class="text">原创</div>
+                        <div class="menu">
+                            <div class="item" data-value="1">原创</div>
+                            <div class="item" data-value="2">转载</div>
+                            <div class="item" data-value="3">翻译</div>
+                        </div>
+                    </div>
+                    <input type="text" name="title" th:value="${document.title}" placeholder="标题">
+                </div>
+            </div>
+            <h2 >文档摘要</h2>
+            <div class="required field">
+                <textarea placeholder="文档描述" name="description" th:text="${document.description}"></textarea>
+            </div>
+            <!--textarea-->
+            <div class="required field">
+                <div id="md-content" style="z-index: 1 !important;">
+                    <textarea name="content" style="display: none">[[${document.content}]]</textarea>
+                </div>
+            </div>
+            <!--两个下拉框的容器-->
+            <div class="two fields">
+                <!--选择分类的下拉框-->
+                <div class="required field">
+                    <div class="ui left labeled action input">
+                        <label class="ui compact teal basic label">分类</label>
+                        <div class="ui fluid selection dropdown">
+                            <input type="hidden" name="typeId" th:value="${document.type.typeId}">
+                            <i class="dropdown icon"></i>
+                            <div class="default text">分类</div>
+                            <div class="menu">
+                                <div class="item" th:each="type:${typeList}" th:attr="data-value=${type.typeId}" th:text="${type.typeName}"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!--选择标签的下拉框-->
+                <div class="required field">
+                    <div class="ui left labeled action input">
+                        <label class="ui compact teal basic label">标签</label>
+                        <div class="ui fluid multiple search selection dropdown">
+                            <input type="hidden" name="tagIdList" th:value="${taglist_doc}">
+                            <i class="dropdown icon"></i>
+                            <div class="default text">标签</div>
+                            <div class="menu">
+                                <div class="item" th:each="tag:${tagList}" th:attr="data-value=${tag.tagId}" th:text="${tag.tagName}"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <!--首图地址栏-->
+            <div class="required field">
+                <div class="ui left labeled input">
+                    <label class="ui teal basic label">首图</label>
+                    <input type="text" name="firstPicture" th:value="${document.firstPicture}">
+                </div>
+            </div>
+
+            <input type="hidden" name="saveorpublic" id="saveorpublic" th:value="${document.published}">
+            <!--checkbox的容器-->
+            <div class="inline fields">
+                <!--是否被推荐-->
+                <div class="field">
+                    <input type="checkbox" name="recommend" class="hidden" id="recommend" th:checked="${document.recommend==1}">
+                    <label for="recommend">推荐</label>
+                </div>
+                <!--是否被转载-->
+                <div class="field">
+                    <input type="checkbox" name="shareInfo" class="hidden" id="shareInfo" th:checked="${document.shareInfo==1}">
+                    <label for="shareInfo">转载</label>
+                </div>
+                <!--是否被赞赏-->
+                <div class="field">
+                    <input type="checkbox" name="appreciate" class="hidden" id="appreciate" th:checked="${document.appreciate==1}">
+                    <label for="appreciate">赞赏</label>
+                </div>
+                <!--是否可以留言-->
+                <div class="field">
+                    <input type="checkbox" name="commentAble" class="hidden" id="commentAble" th:checked="${document.commentAble==1}">
+                    <label for="commentAble">评论</label>
+                </div>
+                <h6>附属文件再次上传</h6>
+                <input type="file"  name="codefile" multiple>
+            </div>
+            <div class="ui error message"></div>
+            <!--三个按钮-->
+            <div class="ui right aligned container">
+                <button class="ui button" type="button" onclick="window.history.go(-1)">返回</button>
+                <button class="ui secondary button" id="btn_save">仅保存不发布</button>
+                <button class="ui teal button" id="btn_public">完成修改并发布</button>
+            </div>
+        </form>
+
+    </div>
+    <div class="popup_con">
+        <div class="popup">
+            <p>正在上传请稍候。。</p>
+        </div>
+    </div>
+</div>
+
+<!--底部容器-->
+<div th:include="footer"></div>
+<!--引入jquery-->
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.2/dist/jquery.min.js"></script>
+<!--引入semantic的js库-->
+<script src="https://cdn.jsdelivr.net/npm/semantic-ui@2.4.2/dist/semantic.min.js"></script>
+<script th:src="@{/lib/editormd/editormd.min.js}"></script>
+<script>
+    var contentEditor;
+    $(function (){
+        //初始化编辑器
+        contentEditor = editormd("md-content",{
+            width:"100%",
+            height:"500px",
+            syncScrolling: "single",
+            path:"/lib/editormd/lib/"
+        });
+    })
+
+    $(".menu.toggle").click(function (){
+        $(".m-item").toggleClass('m-mobile-hide');
+    });
+    $('.ui.dropdown').dropdown({
+        on:'hover'
+    });
+    $('.ui.form').form({
+        fields:{
+            title:{
+                identifier: 'title',
+                rules:[{
+                    type:'empty',
+                    prompt:'标题：请输入文档标题'
+                }]
+            },
+            content:{
+                identifier: 'content',
+                rules:[{
+                    type:'empty',
+                    prompt:'标题：请输入文档内容'
+                }]
+            },
+            typeId:{
+                identifier: 'typeId',
+                rules:[{
+                    type:'empty',
+                    prompt:'标题：请输入文档类别'
+                }]
+            },
+            firstPicture:{
+                identifier: 'firstPicture',
+                rules:[{
+                    type:'empty',
+                    prompt:'标题：请输入文档首图地址'
+                }]
+            },
+            tagIdList:{
+                identifier: 'tagIdList',
+                rules:[{
+                    type:'empty',
+                    prompt:'标题：请输入文档标签'
+                }]
+            },
+            description:{
+                identifier: 'description',
+                rules:[{
+                    type:'empty',
+                    prompt:'标题：请输入文档描述'
+                }]
+            }
+        }
+    })
+
+    $("#btn_save").click(function () {
+        $("#saveorpublic").val("0");
+        $("#document_form").submit();
+        localStorage.setItem('order_finish',60);
+        $('.popup_con').fadeIn('fast', function() {
+            setTimeout(function(){
+                $('.popup_con').fadeOut('fast',function(){
+                });
+            },3000)
+        });
+    })
+
+    $("#btn_public").click(function () {
+        $("#saveorpublic").val("1");
+        $("#document_form").submit();
+        localStorage.setItem('order_finish',60);
+        $('.popup_con').fadeIn('fast', function() {
+            setTimeout(function(){
+                $('.popup_con').fadeOut('fast',function(){
+                });
+            },3000)
+        });
+    });
+    $("#index-btn").click(function () {
+        window.location.href='/admin/index';
+
+    })
+
+</script>
+
+</body>
+</html>

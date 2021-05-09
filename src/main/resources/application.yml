@@ -1,0 +1,41 @@
+spring:
+  datasource:
+    driver-class-name: com.mysql.jdbc.Driver
+    username: root
+    password: nxtabb230105
+    url: jdbc:mysql://125.124.225.44:3306/myblog?serverTimezone=UTC&useUnicode=true&characterEncoding=utf-8
+    type: com.alibaba.druid.pool.DruidDataSource
+    initialSize: 2
+    minIdle: 5
+    maxActive: 20
+    maxWait: 60000
+    timeBetweenEvictionRunsMillis: 60000
+    minEvictableIdleTimeMillis: 300000
+    validationQuery: SELECT 1 FROM DUAL
+    testWhileIdle: true
+    testOnBorrow: false
+    testOnReturn: false
+    poolPreparedStatements: true
+    #配置监控统计 拦截的filters，stat：监控统计、log4j：日志记录、wall：防御sql注入
+    #如果允许报错，java.lang.ClassNotFoundException: org.apache.Log4j.Properity
+    #则导入log4j 依赖就行
+    filters: stat,wall,log4j
+    maxPoolPreparedStatementPerConnectionSize: 20
+    useGlobalDataSourceStat: true
+    connectionProperties: druid.stat.mergeSql=true;druid.stat.slowSqlMillis=500
+  thymeleaf:
+    cache: false
+  redis:
+    port: 6379
+    host: 125.124.225.44
+    database: 1
+mybatis:
+  mapper-locations: classpath:mapper/*.xml
+  type-aliases-package: com.hrbeu.pojo
+  configuration:
+    #获取自增主键
+    use-generated-keys: true
+    #使用列标签替换列名
+    use-column-label: true
+    #驼峰命名
+    map-underscore-to-camel-case: true
